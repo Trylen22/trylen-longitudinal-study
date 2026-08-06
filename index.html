@@ -312,10 +312,40 @@
       .bridge-item { border-right: 1px solid var(--line-strong); border-bottom: 0; }
       .bridge-item:last-child { border-bottom: 1px solid var(--line-strong); }
       .bridge-item::after { display: none; }
-      .formation { grid-template-columns: 1fr; gap: 14px; }
-      .formation::before { top: 25px; bottom: 25px; left: 18px; right: auto; border-top: 0; border-left: 1px solid var(--line-strong); }
-      .stage { display: grid; grid-template-columns: 36px 60px 1fr; align-items: center; text-align: left; }
-      .stage .dot, .stage:last-child .dot { margin: auto; }
+      .formation {
+        grid-template-columns: 1fr;
+        gap: 0;
+        padding: 8px 0 8px 4px;
+      }
+      .formation::before {
+        top: 18px;
+        bottom: 18px;
+        left: 16px;
+        right: auto;
+        border-top: 0;
+        border-left: 1px solid var(--line-strong);
+      }
+      .stage {
+        display: grid;
+        grid-template-columns: 28px 1fr;
+        column-gap: 14px;
+        align-items: start;
+        text-align: left;
+        padding: 11px 0;
+      }
+      .stage .dot,
+      .stage:last-child .dot {
+        grid-row: 1 / span 3;
+        justify-self: center;
+        align-self: center;
+        margin: 0;
+      }
+      .stage small,
+      .stage b,
+      .stage em { grid-column: 2; }
+      .stage small { font: 600 10px/1.2 var(--sans); letter-spacing: .06em; }
+      .stage b { margin-top: 2px; }
+      .stage em { margin-top: 2px; }
       .experiment { grid-template-columns: 35px 1fr; }
       .experiment p, .experiment small { grid-column: 2; }
       .course-scroll, .chart-wrap {
