@@ -161,7 +161,9 @@
     .stage em { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; font-style: normal; }
     .subfigure-title { margin: 2px 0 8px; color: var(--muted); font: 600 11px var(--sans); letter-spacing: .1em; }
     .relationship { position: relative; }
-    .relation-block + .relation-block { margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--line); }
+    .fig3-stack { min-width: 680px; }
+    .fig3-scroll .relation-block + .relation-block { margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--line); }
+    .fig3-scroll .chart { min-width: 0; width: 100%; }
     .chart .event-line { stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 4 3; }
     .chart .event-label-bg { fill: var(--bg); stroke: var(--line); stroke-width: 1; }
     .chart .event-label-text { fill: var(--text); font: 10px var(--sans); }
@@ -330,6 +332,8 @@
         letter-spacing: .04em;
       }
       svg.chart { min-width: 560px; }
+      .fig3-stack { min-width: 560px; }
+      .fig3-scroll .chart { min-width: 0; }
     }
     @media print {
       :root { color-scheme: light; }
@@ -411,21 +415,25 @@
     <h2 class="figure-title">Chronological relationship between work email and grades</h2>
     <p class="figure-note">Two aligned views of the same years, with a personal-context marker at May 2025. Association is not causation.</p>
     <div class="relationship">
-      <div class="relation-block">
-        <div class="subfigure-title">3A · Work-related email signal</div>
-        <div class="legend">
-          <span><i style="background:var(--amber)"></i>Career</span>
-          <span><i style="background:var(--blue)"></i>AI / LLM</span>
-          <span><i style="background:var(--green)"></i>Hunt / sawmill</span>
+      <div class="chart-wrap fig3-scroll">
+        <div class="fig3-stack">
+          <div class="relation-block">
+            <div class="subfigure-title">3A · Work-related email signal</div>
+            <div class="legend">
+              <span><i style="background:var(--amber)"></i>Career</span>
+              <span><i style="background:var(--blue)"></i>AI / LLM</span>
+              <span><i style="background:var(--green)"></i>Hunt / sawmill</span>
+            </div>
+            <svg id="work-email-chart" class="chart" viewBox="0 0 1040 270" role="img" aria-label="Work-related email keyword signals by year"></svg>
+            <p class="caption">X-axis: calendar year · Y-axis: matching email subject lines (count). Source: Gmail Takeout, 2022–July 2026. Categories can overlap and are signals, not hours worked. Dashed line = May 2025 (drawn in the SVG so it stays on the May tick while you scroll).</p>
+          </div>
+          <div class="relation-block">
+            <div class="subfigure-title">3B · Grade trajectory</div>
+            <div class="legend"><span><i style="background:var(--blue)"></i>Quality-hour-weighted term GPA</span></div>
+            <svg id="annual-gpa-chart" class="chart" viewBox="0 0 1040 245" role="img" aria-label="Quality-hour-weighted term GPA by year"></svg>
+            <p class="caption">X-axis: year of named academic term · Y-axis: GPA (0–4 scale). Derived from official term quality points divided by GPA hours; 2026 includes Winter and Spring only. May 2025 marker is interpolated between the 2025 and 2026 year ticks (~May).</p>
+          </div>
         </div>
-        <div class="chart-wrap" data-sync="fig3"><svg id="work-email-chart" class="chart" viewBox="0 0 1040 270" role="img" aria-label="Work-related email keyword signals by year"></svg></div>
-        <p class="caption">X-axis: calendar year · Y-axis: matching email subject lines (count). Source: Gmail Takeout, 2022–July 2026. Categories can overlap and are signals, not hours worked. Dashed line = May 2025 (drawn in chart coordinates so it stays aligned while scrolling).</p>
-      </div>
-      <div class="relation-block">
-        <div class="subfigure-title">3B · Grade trajectory</div>
-        <div class="legend"><span><i style="background:var(--blue)"></i>Quality-hour-weighted term GPA</span></div>
-        <div class="chart-wrap" data-sync="fig3"><svg id="annual-gpa-chart" class="chart" viewBox="0 0 1040 245" role="img" aria-label="Quality-hour-weighted term GPA by year"></svg></div>
-        <p class="caption">X-axis: year of named academic term · Y-axis: GPA (0–4 scale). Derived from official term quality points divided by GPA hours; 2026 includes Winter and Spring only. May 2025 marker is interpolated between the 2025 and 2026 year ticks (~May).</p>
       </div>
     </div>
     <div class="relationship-finding">
@@ -675,21 +683,6 @@
       }, line));
     });
   }
-  function syncChartScrolls(group) {
-    const wraps = [...document.querySelectorAll(`.chart-wrap[data-sync="${group}"]`)];
-    if (wraps.length < 2) return;
-    let locking = false;
-    wraps.forEach(source => {
-      source.addEventListener("scroll", () => {
-        if (locking) return;
-        locking = true;
-        wraps.forEach(target => {
-          if (target !== source) target.scrollLeft = source.scrollLeft;
-        });
-        locking = false;
-      }, {passive: true});
-    });
-  }
   function barChart(id, labels, values, options = {}) {
     const svg = document.getElementById(id);
     const W = svg.viewBox.baseVal.width, H = svg.viewBox.baseVal.height;
@@ -734,7 +727,6 @@
   lineChart("annual-gpa-chart", yearLabels, [{name:"Quality-hour-weighted term GPA",data:[2.556,2.357,2.567,1.286,2.875],color:css("--blue")}], {min:0,max:4,ticks:4,decimals:1,valueDecimals:3});
   markYearEvent("work-email-chart", yearLabels, 2025, 5, mayLines);
   markYearEvent("annual-gpa-chart", yearLabels, 2025, 5, mayLines);
-  syncChartScrolls("fig3");
   barChart("mail-volume-chart", ["2022","2023","2024","2025","2026*"], [1606,3286,4256,4863,3222], {max:5500,color:css("--blue")});
   horizontalBars("artifact-chart", ["Docs","Web","Python","AI stack","SQL/data","PLC"], [3655,1245,1162,821,499,379]);
 </script>
