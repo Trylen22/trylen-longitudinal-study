@@ -461,7 +461,7 @@
             <div class="subfigure-title">3B · Grade trajectory</div>
             <div class="legend"><span><i style="background:var(--blue)"></i>Quality-hour-weighted term GPA</span></div>
             <svg id="annual-gpa-chart" class="chart" viewBox="0 0 1040 245" role="img" aria-label="Quality-hour-weighted term GPA by year"></svg>
-            <p class="caption">X-axis: year of named academic term · Y-axis: GPA (0–4 scale). Derived from official term quality points divided by GPA hours; 2026 includes Winter and Spring only. May 2025 marker is interpolated between the 2025 and 2026 year ticks (~May).</p>
+            <p class="caption">X-axis: year of named academic term · Y-axis: GPA (0–4 scale). Derived from official term quality points divided by GPA hours; 2026 includes Winter and Spring only. May 2025 marker sits on the 2025 year tick (annual resolution).</p>
           </div>
         </div>
       </div>
@@ -682,25 +682,22 @@
     svg.append(node("line",{x1:m.l,y1:H-m.b,x2:W-m.r,y2:H-m.b,class:"axis-line"}));
     return {x, y, m, W, H, labels};
   }
-  /** Vertical event line in SVG space so it scrolls/scales with the chart. */
-  function markYearEvent(id, labels, year, month = 6, textLines = []) {
+  /** Vertical event line on the matching year tick (annual charts have no month axis). */
+  function markYearEvent(id, labels, year, textLines = []) {
     const svg = document.getElementById(id);
     const box = svg.viewBox.baseVal;
     const W = box.width, H = box.height;
     const m = {l:58, r:24, t:22, b:40};
-    const i0 = labels.indexOf(String(year));
-    if (i0 < 0) return;
-    const i1 = Math.min(i0 + 1, labels.length - 1);
-    const xAt = i => m.l + i * (W - m.l - m.r) / (labels.length - 1);
-    // Interpolate within the year: Jan=0 … Dec≈1 toward next year tick
-    const frac = Math.min(1, Math.max(0, (month - 0.5) / 12));
-    const xx = xAt(i0) + frac * (xAt(i1) - xAt(i0));
+    const i = labels.indexOf(String(year));
+    if (i < 0) return;
+    const xx = m.l + i * (W - m.l - m.r) / (labels.length - 1);
     svg.append(node("line", {
       x1: xx, y1: m.t - 6, x2: xx, y2: H - m.b,
       class: "event-line"
     }));
     const labelW = 108, labelH = 12 + textLines.length * 12;
-    const labelX = Math.min(xx + 6, W - m.r - labelW);
+    // Sit label to the right of the tick, or left if near the right edge
+    const labelX = (xx + 6 + labelW > W - m.r) ? xx - 6 - labelW : xx + 6;
     const labelY = m.t + 4;
     svg.append(node("rect", {
       x: labelX, y: labelY, width: labelW, height: labelH, rx: 2,
@@ -755,8 +752,8 @@
     {name:"Hunt / sawmill",data:[5,0,5,11,215],color:css("--green")}
   ], {min:0,max:600,ticks:3});
   lineChart("annual-gpa-chart", yearLabels, [{name:"Quality-hour-weighted term GPA",data:[2.556,2.357,2.567,1.286,2.875],color:css("--blue")}], {min:0,max:4,ticks:4,decimals:1,valueDecimals:3});
-  markYearEvent("work-email-chart", yearLabels, 2025, 5, mayLines);
-  markYearEvent("annual-gpa-chart", yearLabels, 2025, 5, mayLines);
+  markYearEvent("work-email-chart", yearLabels, 2025, mayLines);
+  markYearEvent("annual-gpa-chart", yearLabels, 2025, mayLines);
   barChart("mail-volume-chart", ["2022","2023","2024","2025","2026*"], [1606,3286,4256,4863,3222], {max:5500,color:css("--blue")});
   horizontalBars("artifact-chart", ["Docs","Web","Python","AI stack","SQL/data","PLC"], [3655,1245,1162,821,499,379]);
 </script>
