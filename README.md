@@ -4,4 +4,6 @@ Standalone public page: a longitudinal study of coursework, research work, and i
 
 **Live site:** https://trylen22.github.io/trylen-longitudinal-study/
 
-All data and graphics are embedded in `index.html` (no backend, no tracking).
+**Traffic dashboard (GoatCounter):** https://trylen22.goatcounter.com/
+
+All data and graphics are embedded in `index.html` (no backend). Pageviews are counted with privacy-friendly GoatCounter.
